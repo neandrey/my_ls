@@ -77,12 +77,10 @@ void Input::parser_path_regex()
  */
 void Input::parser_path()
 {
-    // TODO: реализовать
+    // FIXME: допилить вывод строки с ошибкой.
     s_path = char_to_str(argv, my_optind);
-    if (parser_sep(s_path.begin(), s_path.end(), "/"))
+    if (parser_sep(s_path.begin(), s_path.end(), sep))
         cout << "error parse" << endl;
-
-    cout << "get_out" << endl;
 }
 
 bool Input::parser_sep(c_iter begin, c_iter end, string sep)
@@ -97,7 +95,7 @@ bool Input::parser_sep(c_iter begin, c_iter end, string sep)
             continue;
         }
 
-        if (parser_dir(i, c - 1))
+        if (parser_dir(i, c))
         {
             is_check = true;
             break;
@@ -105,16 +103,27 @@ bool Input::parser_sep(c_iter begin, c_iter end, string sep)
         i = c + sep.size();
     }
     if (!is_check)
-        return parser_dir(i, c - 1);
+        return parser_dir(i, c);
     return is_check;
 }
 
 bool Input::parser_dir(c_iter begin, c_iter end)
 {
-    if (*begin == '\'' and *end == '\'')
-        return std::any_of(begin, end, with_space);
+    bool res_flag{false};
+    if (*begin == '\'' and *(end - 1) == '\'')
+    {
+        res_flag = any_of(begin, end, with_space);
+        if (res_flag)
+            std::cout << *find_if(begin, end, with_space) << std::endl;
+    }
     else
-        return std::any_of(begin, end, with_not_space);
+    {
+        res_flag = any_of(begin, end, with_not_space);
+        if (res_flag)
+            std::cout << *find_if(begin, end, with_not_space) << std::endl;
+    }
+
+    return res_flag;
 }
 
 bool Input::with_not_space(char c)

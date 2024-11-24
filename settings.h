@@ -9,6 +9,6 @@ struct flags
     bool f_hum;
 };
 
-const std::string sep = "\\";
+const std::string sep = "/";
 
 #endif

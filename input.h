@@ -19,7 +19,7 @@ class Input
     void parser_path_regex();
     void parser_path();
 
-    bool parser_sep(c_iter begin, c_iter end, std::string sep = "\\");
+    bool parser_sep(c_iter begin, c_iter end, std::string sep);
     bool parser_dir(c_iter begin, c_iter end);
     static bool with_space(char);
     static bool with_not_space(char);

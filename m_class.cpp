@@ -20,8 +20,6 @@
 //         type_file(dirp->d_name, &buf);
 //         xwr_file(dirp->d_name, &buf);
 //         owner_file(dirp->d_name, &buf);
-
-//         // break;
 //     }
 
 //     closedir(dp);
