@@ -8,23 +8,21 @@
  * @copyright Copyright (c) 2024
  */
 #include <iostream>
-#include <unistd.h>
-#include <dirent.h>
-#include <string.h>
+#include "input.h"
 using namespace std;
 
-#define MAXLINE 4096
 int main(int argc, char **argv)
 {
-    char buf[MAXLINE];
-    pid_t pid;
-    int status;
+    // для отладки
+    argc = 3;
+    argv[0] = "main";
+    argv[1] = "-l";
+    argv[2] = "./home/ne_andrey/projectC/'my_ ls'";
 
-    printf("%% ");
+    Input in(argc, argv);
+    flags v_flags = in.get_flags();
 
-    while (fgets(buf, MAXLINE, stdin) != NULL)
-    {
-        if (buf[strlen(buf) - 1] == '\n')
-            buf[strlen(buf) - 1] = 0;
-    }
+    cout << v_flags.f_long << endl;
+    cout << v_flags.f_hum << endl;
+    cout << v_flags.f_rev << endl;
 }

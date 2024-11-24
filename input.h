@@ -1,62 +1,44 @@
 #ifndef INPUT_H
 #define INPUT_H
-
-#include <vector>
+#include "settings.h"
 #include <string>
-#include <unistd.h> // for getopt()
 
 class Input
 {
-    std::vector<std::string> v_str;
-    bool f_long{false}, f_reverse{false}, f_human{false};
 
+    typedef std::string::const_iterator c_iter;
     int argc;
     char **argv;
+    // bool f_long{false}, f_reverse{false}, f_human{false};
+    flags set_flags{false, false, false};
+
+    std::string s_path;
+    size_t my_optind{0};
+
+    void parser_flag();
+    void parser_path_regex();
+    void parser_path();
+
+    bool parser_sep(c_iter begin, c_iter end, std::string sep = "\\");
+    bool parser_dir(c_iter begin, c_iter end);
+    static bool with_space(char);
+    static bool with_not_space(char);
 
 public:
     Input(int _argc, char **_argv) : argc(_argc), argv(_argv)
     {
+        parser_flag();
+        parser_path();
     }
 
-    void parser_parametr();
-    void parser_path();
-};
-
-/**
- * @brief разгребаем введенные опции
- *
- */
-void Input::parser_parametr()
-{
-    int opt;
-    while ((opt = getopt(argc, argv, "lrh")) != -1)
+    const char *get_path()
     {
-        switch (opt)
-        {
-        case 'l':
-            f_long = true;
-            break;
-        case 'r':
-            f_reverse = true;
-            break;
-        case 'h':
-            f_human = true;
-            break;
-        default:
-            fprintf(stderr, "Usage: %s [-t nsecs] [-n] name\n",
-                    argv[0]);
-            exit(EXIT_FAILURE);
-            break;
-        }
+        return s_path.c_str();
     }
-}
-
-/**
- * @brief разгребаем введенную строку
- *
- */
-void Input::parser_path()
-{
-}
-
+    struct flags get_flags()
+    {
+        return set_flags;
+    }
+    static std::string char_to_str(char **c_str, size_t pos);
+};
 #endif
