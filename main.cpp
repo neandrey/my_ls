@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2024
  */
 #include <iostream>
-#include "input.h"
+#include "m_class.h"
 using namespace std;
 
 int main(int argc, char **argv)
@@ -17,12 +17,7 @@ int main(int argc, char **argv)
     argc = 3;
     argv[0] = "main";
     argv[1] = "-l";
-    argv[2] = "./home/ne_andrey/projectC/'whiet whiel' ";
+    argv[2] = "/home/ne_andrey/projectC/my_ls";
 
-    Input in(argc, argv);
-    flags v_flags = in.get_flags();
-
-    cout << v_flags.f_long << endl;
-    cout << v_flags.f_hum << endl;
-    cout << v_flags.f_rev << endl;
+    MClass m_class(argc, argv);
 }

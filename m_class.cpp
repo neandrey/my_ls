@@ -1,91 +1,117 @@
-// #include "m_class.cpp"
+#include "m_class.h"
+#include <iostream>
+#include <ctime>
 
-// void MClass::read_dir()
-// {
-//     parser_parametr();
-//     cout << parser_path() << endl;
+using std::cout;
+using std::endl;
 
-//     DIR *dp;
-//     struct dirent *dirp;
-//     struct stat buf;
+void MClass::main_func(const char *path)
+{
 
-//     if ((dp = opendir(parser_path())) == nullptr)
-//         cout << "невозможно открыть" << endl;
+    read_file_dir(path);
 
-//     while ((dirp = readdir(dp)) != nullptr)
-//     {
-//         file_type.clear();
+    for (auto name_dir : v_dir_name)
+    {
+        read_lstat(name_dir.c_str());
+        type_file(&buf);
+        xwr_file(&buf);
+        owner_file(&buf);
+        get_size(&buf);
+        // get_time(&buf);
+    }
+}
 
-//         cout << "dirname: " << dirp->d_name << " ";
-//         type_file(dirp->d_name, &buf);
-//         xwr_file(dirp->d_name, &buf);
-//         owner_file(dirp->d_name, &buf);
-//     }
+void MClass::read_file_dir(const char *path)
+{
+    if ((dp = opendir(path)) == nullptr)
+        cout << "невозможно открыть" << endl;
 
-//     closedir(dp);
-//     exit(0);
-// }
+    while ((dirp = readdir(dp)) != nullptr)
+    {
+        v_dir_name.push_back(dirp->d_name);
+        cout << "dirname: " << dirp->d_name << endl;
+    }
 
-// /**
-//  * @brief тип файла
-//  *
-//  * @param filename
-//  */
-// void MClass::type_file(const char *filename, struct stat *buf)
-// {
-//     if (lstat(filename, buf) < 0)
-//     {
-//         cout << "Ошибка вызова функции lstat";
-//     }
+    // closedir(dp);
+    // exit(0);
+}
 
-//     if (S_ISREG(buf->st_mode))
-//         file_type.push_back('-');
-//     else if (S_ISDIR(buf->st_mode))
-//         file_type.push_back('d');
-//     else if (S_ISCHR(buf->st_mode))
-//         file_type.push_back('c');
-//     else if (S_ISBLK(buf->st_mode))
-//         file_type.push_back('b');
-//     else if (S_ISFIFO(buf->st_mode))
-//         file_type.push_back('p');
-//     else if (S_ISLNK(buf->st_mode))
-//         file_type.push_back('l');
-//     else if (S_ISSOCK(buf->st_mode))
-//         file_type.push_back('s');
-//     else
-//         cout << "неизвестный тип файла" << endl;
+void MClass::read_lstat(const char *filename)
+{
+    if (lstat(filename, &buf) < 0)
+        cout << "невозможно прочитать lstat " << endl;
+}
 
-//     cout << file_type << endl;
-// }
+/**
+ * @brief тип файла
+ *
+ * @param filename
+ */
+void MClass::type_file(struct stat *buf)
+{
+    if (S_ISREG(buf->st_mode))
+        v_res.push_back("-");
+    else if (S_ISDIR(buf->st_mode))
+        v_res.push_back("d");
+    else if (S_ISCHR(buf->st_mode))
+        v_res.push_back("c");
+    else if (S_ISBLK(buf->st_mode))
+        v_res.push_back("b");
+    else if (S_ISFIFO(buf->st_mode))
+        v_res.push_back("p");
+    else if (S_ISLNK(buf->st_mode))
+        v_res.push_back("l");
+    else if (S_ISSOCK(buf->st_mode))
+        v_res.push_back("s");
+    else
+        cout << "неизвестный тип файла" << endl;
+}
 
-// void MClass::xwr_file(const char *filename, struct stat *buf)
-// {
-//     if (lstat(filename, buf) < 0)
-//     {
-//         cout << "Ошибка вызова функции lstat";
-//     }
-//     cout << std::oct << (unsigned long)buf->st_mode << endl;
-//     uint16_t mode = buf->st_mode;
+void MClass::xwr_file(struct stat *buf)
+{
+    owner_rights(buf);
+    group_rights(buf);
+    other_rights(buf);
+}
 
-//     vector<bool> v_bool;
-//     for (int i = 0; i < 8; ++i)
-//     {
-//         v_bool.push_back(mode & 0xFE);
-//         mode >>= i;
-//     }
+void MClass::owner_file(struct stat *buf)
+{
+    struct passwd *pwd;
+    pwd = getpwuid(buf->st_uid);
+    cout << pwd->pw_name << endl;
 
-//     for (auto i : v_bool)
-//         cout << int(i);
-//     cout << endl;
-// }
+    struct group *grp;
+    grp = getgrgid(buf->st_gid);
+    cout << grp->gr_name << endl;
+}
 
-// void MClass::owner_file(const char *filename, struct stat *buf)
-// {
-//     if (lstat(filename, buf) < 0)
-//     {
-//         cout << "Ошибка вызова функции lstat";
-//     }
-//     struct passwd *pwd;
-//     pwd = getpwuid(buf->st_uid);
-//     cout << pwd->pw_name << endl;
-// }
+void MClass::get_time(struct stat *buf)
+{
+    // cout << buf->st_ctim << endl;
+}
+
+void MClass::get_size(struct stat *buf)
+{
+    cout << buf->st_size << endl;
+}
+
+void MClass::owner_rights(struct stat *buf)
+{
+    cout << bool(buf->st_mode & S_IRUSR) << endl;
+    cout << bool(buf->st_mode & S_IWUSR) << endl;
+    cout << bool(buf->st_mode & S_IXUSR) << endl;
+}
+
+void MClass::group_rights(struct stat *buf)
+{
+    cout << bool(buf->st_mode & S_IRGRP) << endl;
+    cout << bool(buf->st_mode & S_IWGRP) << endl;
+    cout << bool(buf->st_mode & S_IXUSR) << endl;
+}
+
+void MClass::other_rights(struct stat *buf)
+{
+    cout << bool(buf->st_mode & S_IROTH) << endl;
+    cout << bool(buf->st_mode & S_IWOTH) << endl;
+    cout << bool(buf->st_mode & S_IXOTH) << endl;
+}
