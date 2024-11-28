@@ -20,18 +20,33 @@ class MClass
     struct dirent *dirp;
     struct stat buf;
 
-    void type_file(struct stat *);
-    void xwr_file(struct stat *);
-    void owner_file(struct stat *);
-    void get_time(struct stat *);
-    void get_size(struct stat *);
+    size_t len_xwr{0}, len_owner{0}, len_size{0}, len_date{0}, len_name{0};
+
     void read_file_dir(const char *path);
     void read_lstat(const char *filename);
 
-    // xwr-group
-    void owner_rights(struct stat *);
-    void group_rights(struct stat *);
-    void other_rights(struct stat *);
+    // тип-файла
+    const char type_file(struct stat *);
+
+    // права пользователей
+    std::string xwr_file(struct stat *);
+    std::string owner_rights(struct stat *);
+    std::string group_rights(struct stat *);
+    std::string other_rights(struct stat *);
+
+    // имя владельца и группы
+    std::string name_group_owner(struct stat *);
+    std::string name_owner(struct stat *);
+    std::string group_owner(struct stat *);
+
+    // размер файла
+    int get_size(struct stat *);
+
+    // время создания файла
+    void get_time(struct stat *);
+
+    void formating_string(struct stat *, std::string name);
+    void append_data(struct stat *);
 
     void main_func(const char *path);
 
@@ -41,6 +56,8 @@ public:
         in = new Input(argc, argv);
         main_func(in->get_path());
     }
+
+    void print();
 };
 
 #endif

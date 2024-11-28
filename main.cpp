@@ -20,4 +20,5 @@ int main(int argc, char **argv)
     argv[2] = "/home/ne_andrey/projectC/my_ls";
 
     MClass m_class(argc, argv);
+    m_class.print();
 }
