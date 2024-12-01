@@ -1,6 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 #include <string>
+#include <cmath>
 
 struct flags
 {
@@ -8,6 +9,8 @@ struct flags
     bool f_rev;
     bool f_hum;
 };
+
+const long K_BYTE = 1024;
 
 const std::string sep = "/";
 
