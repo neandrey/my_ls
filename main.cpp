@@ -13,11 +13,13 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+#ifdef DEBUG
     // для отладки
     argc = 3;
     argv[0] = "main";
     argv[1] = "-l";
-    // argv[2] = "/home/ne_andrey/projectC/my_ls";
+    argv[2] = "/home/ne_andrey/";
+#endif
 
     MClass m_class(argc, argv);
     m_class.print();

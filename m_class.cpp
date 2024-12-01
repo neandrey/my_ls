@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <regex>
 
+using std::cerr;
 using std::cout;
 using std::endl;
 using std::regex;
@@ -26,7 +27,7 @@ void MClass::main_func(const char *path, flags f_val)
         reverse(v_dir_name.begin(), v_dir_name.end());
     }
 
-    regex reg("(\\.|\\..){1}(\\w+)?"); // для удаления . или ..
+    regex reg("(\\.|\\..){1}([\\d,\\w,\\S]+)?"); // для удаления . или ..
     for (auto name_file : v_dir_name)
     {
         if (regex_match(name_file, reg))
@@ -88,12 +89,26 @@ void MClass::read_file_dir(const char *path)
 {
     DIR *dp;
     struct dirent *dirp;
+#ifdef DEBUG
+    cout << path << endl;
+#endif
 
     if ((dp = opendir(path)) == nullptr)
-        cout << "невозможно открыть" << endl;
+    {
+        cerr << "невозможно открыть директорию" << endl;
+        closedir(dp);
+        exit(EXIT_FAILURE);
+    }
+
+    if (chdir(path) == -1)
+    {
+        cerr << "chdir ошбка смены каталога" << endl;
+        exit(EXIT_FAILURE);
+    }
 
     while ((dirp = readdir(dp)) != nullptr)
     {
+        // cout << dirp->d_name << endl;
         v_dir_name.push_back(dirp->d_name);
     }
 
@@ -103,7 +118,11 @@ void MClass::read_file_dir(const char *path)
 void MClass::read_lstat(const char *filename)
 {
     if (lstat(filename, &buf) < 0)
-        cout << "невозможно прочитать lstat " << endl;
+    {
+        // cout << filename << endl;
+        cerr << "невозможно прочитать lstat " << endl;
+        exit(EXIT_FAILURE);
+    }
 }
 
 const char MClass::type_file()
@@ -124,7 +143,10 @@ const char MClass::type_file()
     else if (S_ISSOCK(buf.st_mode))
         res = ('s');
     else
+    {
         cout << "неизвестный тип файла" << endl;
+        exit(EXIT_FAILURE);
+    }
 
     return res;
 }
@@ -169,6 +191,7 @@ const string MClass::name_and_group()
 
 string MClass::get_date()
 {
+    // FIXME: допилить вывод времени
     std::stringstream MyTime;
     MyTime << std::put_time(std::gmtime(&buf.st_ctim.tv_sec), "%b %y");
     return MyTime.str();
@@ -235,7 +258,7 @@ void MClass::print()
 {
     for (auto i : v_res)
     {
-        // cout.setf(std::ios::left);
+        cout.setf(std::ios::left);
         cout << std::setw(len_xwr + 1) << i.group_type_and_xwr
              << std::setw(len_link + 1) << i.link
              << std::setw(len_owner + 1) << i.group_owner_and_group

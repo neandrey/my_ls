@@ -3,8 +3,10 @@
 #include <unistd.h> // for getopt()
 #include <regex>
 #include <algorithm>
+#include <linux/limits.h>
 
 using std::any_of;
+using std::cerr;
 using std::cout;
 using std::endl;
 using std::regex;
@@ -21,7 +23,7 @@ void Input::parser_flag()
     int opt;
     while ((opt = getopt(argc, argv, "lrh")) != -1)
     {
-        opterr = 0;
+        // opterr = 0;
         switch (opt)
         {
         case 'l':
@@ -34,22 +36,21 @@ void Input::parser_flag()
             set_flags.f_hum = true;
             break;
         default:
-            fprintf(stderr, "Usage: %s [-t nsecs] [-n] name\n",
-                    argv[0]);
             exit(EXIT_FAILURE);
             break;
         }
     }
+    if (set_flags.f_long != true)
+    {
+        cerr << "Обязательно должен быть введен флаг long." << endl;
+        exit(EXIT_FAILURE);
+    }
     my_optind = optind; // наследие С, переменная на след позицию полсе опций
+#ifdef DEBUG
+    cout << my_optind << endl;
+#endif
 }
 
-/**
- * @brief
- *
- * @param c_str
- * @param pos
- * @return string
- */
 string Input::char_to_str(char **c_str, size_t pos)
 {
     string r_val;
@@ -59,35 +60,29 @@ string Input::char_to_str(char **c_str, size_t pos)
     return r_val;
 }
 
-/**
- * @brief
- *
- */
-void Input::parser_path_regex()
-{
-    // FIXME: реализовать поиск по пробелам
-    regex r("(/|./){1}(([a-z,A-Z,0-9,_.'])+/?)+");
-    s_path = char_to_str(argv, my_optind);
-    bool valu = (regex_match(s_path, r)) ? true : false;
-}
-
-/**
- * @brief
- *
- */
 void Input::parser_path()
 {
-    // FIXME: допилить вывод строки с ошибкой.
+    if (my_optind < 2)
+    {
+        char cwd[PATH_MAX];
+        s_path = getcwd(cwd, sizeof(cwd));
+        return;
+    }
+
     s_path = char_to_str(argv, my_optind);
-    if (parser_sep(s_path.begin(), s_path.end(), sep))
-        cout << "error parse" << endl;
+    if (parser_sep(s_path.begin(), s_path.end()))
+    {
+        // FIXME: допилить вывод строки с ошибкой.
+        cerr << "В позицию " << error_info.first << " введен ошибочный символ " << error_info.second << endl;
+        exit(EXIT_FAILURE);
+    }
 }
 
-bool Input::parser_sep(c_iter begin, c_iter end, string sep)
+bool Input::parser_sep(c_iter begin, c_iter end)
 {
     bool is_check{false};
     auto c = begin, i = begin;
-    while ((c = search(i, end, sep.begin(), sep.end())) != end)
+    while ((c = search(i, end, sep_path.begin(), sep_path.end())) != end)
     {
         if (c == begin && c != end)
         {
@@ -95,12 +90,12 @@ bool Input::parser_sep(c_iter begin, c_iter end, string sep)
             continue;
         }
 
-        if (parser_dir(i, c))
+        if (parser_dir(i, c - 1))
         {
             is_check = true;
             break;
         }
-        i = c + sep.size();
+        i = c + sep_path.size();
     }
     if (!is_check)
         return parser_dir(i, c);
@@ -109,33 +104,51 @@ bool Input::parser_sep(c_iter begin, c_iter end, string sep)
 
 bool Input::parser_dir(c_iter begin, c_iter end)
 {
-    bool res_flag{false};
-    if (*begin == '\'' and *(end - 1) == '\'')
+    bool res_flag{false}, first_sep{false};
+    int position = 0;
+    auto c = begin, i = begin;
+    while ((c = search(i, end, sep_white_dir.begin(), sep_white_dir.end())) != end)
     {
-        res_flag = any_of(begin, end, with_space);
-        if (res_flag)
-            std::cout << *find_if(begin, end, with_space) << std::endl;
-    }
-    else
-    {
-        res_flag = any_of(begin, end, with_not_space);
-        if (res_flag)
-            std::cout << *find_if(begin, end, with_not_space) << std::endl;
+        if (c == begin)
+        {
+            first_sep = true;
+            i = c + sep_white_dir.size();
+            continue;
+        }
+
+        if (c == end - 1 and first_sep)
+        {
+            res_flag = any_of(begin + 1, end - 1, with_space);
+            if (res_flag)
+            {
+                char err_ch = *find_if(begin, end, with_space);
+                error_info = {position, err_ch};
+            }
+
+            return res_flag;
+        }
+        i = c + sep_white_dir.size();
     }
 
+    res_flag = any_of(begin, end, with_not_space);
+    if (res_flag)
+    {
+        char err_ch = *find_if(begin, end, with_not_space);
+        error_info = {position, err_ch};
+    }
     return res_flag;
 }
 
 bool Input::with_not_space(char c)
 {
-    string url_ch = "_.";
+    string valid_symbol = "_.";
     return !(isalnum(c) ||
-             find(url_ch.begin(), url_ch.end(), c) != url_ch.end());
+             find(valid_symbol.begin(), valid_symbol.end(), c) != valid_symbol.end());
 }
 
 bool Input::with_space(char c)
 {
-    string url_ch_ = "_.' ";
+    string valid_symbol_ = "_. ";
     return !(isalnum(c) ||
-             find(url_ch_.begin(), url_ch_.end(), c) != url_ch_.end());
+             find(valid_symbol_.begin(), valid_symbol_.end(), c) != valid_symbol_.end());
 }

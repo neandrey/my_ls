@@ -12,6 +12,8 @@ struct flags
 
 const long K_BYTE = 1024;
 
-const std::string sep = "/";
+const std::string sep_path = "/";
+const std::string sep_white_dir = "'";
+// #define DEBUG 1 // раскоментировать для отладки
 
 #endif

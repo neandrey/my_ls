@@ -19,10 +19,13 @@ class Input
     void parser_path_regex();
     void parser_path();
 
-    bool parser_sep(c_iter begin, c_iter end, std::string sep);
+    bool parser_sep(c_iter begin, c_iter end);
     bool parser_dir(c_iter begin, c_iter end);
     static bool with_space(char);
     static bool with_not_space(char);
+
+    // erorr_info
+    std::pair<int, char> error_info;
 
 public:
     Input(int _argc, char **_argv) : argc(_argc), argv(_argv)
