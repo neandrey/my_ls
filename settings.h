@@ -1,7 +1,6 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 #include <string>
-#include <cmath>
 
 struct flags
 {

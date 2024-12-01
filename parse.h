@@ -5,7 +5,6 @@
 
 class Input
 {
-
     typedef std::string::const_iterator c_iter;
     int argc;
     char **argv;
