@@ -73,70 +73,52 @@ void Input::parser_path()
     if (parser_sep(s_path.begin(), s_path.end()))
     {
         // FIXME: допилить вывод строки с ошибкой.
-        cerr << "В позицию " << error_info.first << " введен ошибочный символ " << error_info.second << endl;
+        cerr << "В пути присутствуют недопустимые символы." << endl;
         exit(EXIT_FAILURE);
     }
 }
 
 bool Input::parser_sep(c_iter begin, c_iter end)
 {
-    bool is_check{false};
     auto c = begin, i = begin;
     while ((c = search(i, end, sep_path.begin(), sep_path.end())) != end)
     {
-        if (c == begin && c != end)
+        if (*i == *c)
         {
-            i++;
+            i += sep_path.size();
             continue;
         }
 
         if (parser_dir(i, c - 1))
-        {
-            is_check = true;
-            break;
-        }
+            return true;
+
         i = c + sep_path.size();
     }
-    if (!is_check)
-        return parser_dir(i, c);
-    return is_check;
+    return parser_dir(i, c);
 }
 
 bool Input::parser_dir(c_iter begin, c_iter end)
 {
-    bool res_flag{false}, first_sep{false};
-    int position = 0;
+
+    bool first_sep{false};
     auto c = begin, i = begin;
     while ((c = search(i, end, sep_white_dir.begin(), sep_white_dir.end())) != end)
     {
         if (c == begin)
         {
             first_sep = true;
-            i = c + sep_white_dir.size();
+            i += sep_white_dir.size();
             continue;
         }
 
         if (c == end - 1 and first_sep)
         {
-            res_flag = any_of(begin + 1, end - 1, with_space);
-            if (res_flag)
-            {
-                char err_ch = *find_if(begin, end, with_space);
-                error_info = {position, err_ch};
-            }
-
-            return res_flag;
+            return any_of(begin + 1, end - 1, with_space);
         }
         i = c + sep_white_dir.size();
     }
 
-    res_flag = any_of(begin, end, with_not_space);
-    if (res_flag)
-    {
-        char err_ch = *find_if(begin, end, with_not_space);
-        error_info = {position, err_ch};
-    }
-    return res_flag;
+    return any_of(begin, end, with_not_space);
 }
 
 bool Input::with_not_space(char c)

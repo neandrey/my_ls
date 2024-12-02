@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     argc = 3;
     argv[0] = "main";
     argv[1] = "-l";
-    argv[2] = "/home/ne_andrey/";
+    argv[2] = "/projectC/'hel'lo'";
 #endif
 
     MClass m_class(argc, argv);

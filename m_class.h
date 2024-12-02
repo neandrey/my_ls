@@ -3,13 +3,7 @@
 #include "parse.h"
 #include <vector>
 #include <string>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <grp.h>
-#include <pwd.h>
-
 struct FileData
 {
     std::string group_type_and_xwr;

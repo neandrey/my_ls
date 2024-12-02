@@ -1,10 +1,14 @@
 #include "m_class.h"
 #include <iostream>
-#include <cstring>
 #include <ctime>
 #include <iomanip>
 #include <algorithm>
 #include <regex>
+#include <sys/types.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <grp.h>
+#include <pwd.h>
 
 using std::cerr;
 using std::cout;
@@ -191,9 +195,8 @@ const string MClass::name_and_group()
 
 string MClass::get_date()
 {
-    // FIXME: допилить вывод времени
     std::stringstream MyTime;
-    MyTime << std::put_time(std::gmtime(&buf.st_ctim.tv_sec), "%b %y");
+    MyTime << std::put_time(std::gmtime(&buf.st_ctim.tv_sec), "%b %y %H:%M");
     return MyTime.str();
 }
 
@@ -258,8 +261,8 @@ void MClass::print()
 {
     for (auto i : v_res)
     {
-        cout.setf(std::ios::left);
-        cout << std::setw(len_xwr + 1) << i.group_type_and_xwr
+        // cout.setf(std::ios::left);
+        cout << std::setw(len_xwr) << i.group_type_and_xwr
              << std::setw(len_link + 1) << i.link
              << std::setw(len_owner + 1) << i.group_owner_and_group
              << std::setw(len_size + 1) << i.size
