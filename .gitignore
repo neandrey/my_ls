@@ -34,5 +34,5 @@
 #vs-code
 *.vscode
 
-#main
-main
+#build cmake
+build
