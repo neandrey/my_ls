@@ -42,7 +42,7 @@ void Input::parser_flag()
     }
     if (set_flags.f_long != true)
     {
-        cerr << "Обязательно должен быть введен флаг long." << endl;
+        cerr << "Обязательно должен быть введен флаг -l (long.)" << endl;
         exit(EXIT_FAILURE);
     }
     my_optind = optind; // наследие С, переменная на след позицию полсе опций
@@ -54,15 +54,15 @@ void Input::parser_flag()
 string Input::char_to_str(char **c_str, size_t pos)
 {
     string r_val;
-    char *first_char = c_str[pos];
-    for (int i = 0; *first_char != '\0'; ++i)
-        r_val.push_back(*first_char++);
+    char *first_symbol = c_str[pos];
+    while (*first_symbol)
+        r_val.push_back(*first_symbol++);
     return r_val;
 }
 
 void Input::parser_path()
 {
-    if (my_optind < 2)
+    if (argc < 3)
     {
         char cwd[PATH_MAX];
         s_path = getcwd(cwd, sizeof(cwd));
